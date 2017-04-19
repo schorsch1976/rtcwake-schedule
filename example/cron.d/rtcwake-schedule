@@ -1,0 +1,2 @@
+# check every 10 min if we should shutdown/standby
+*/10	*	*	*	*	root	/usr/bin/rtcwake-schedule
