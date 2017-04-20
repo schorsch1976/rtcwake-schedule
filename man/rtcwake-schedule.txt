@@ -1,0 +1,48 @@
+.TH rtcwake-schedule 1 "20 May 2017" "version 0.1.1"
+.SH NAME
+rtcwake-schedule \- use rtcwake based on a complex schedule
+.SH SYNOPSIS
+.B rtcwake-schedule
+[\fB\-t\fR]
+[\fB\--test\fR]
+.SH DESCRIPTION
+.B rtcwake-schedule
+use rtcwake based on a complex schedule
+.SH OPTIONS
+.TP
+.BR \-t ", " \-\-test\fR
+Test the configuration. Be verbose abouts its state. Does not execute the PowerDown script.
+.B FILES
+.PP
+.I /etc/rtcwake-schedule/schedule
+This files configures the schedule. It is a human readable syntax.
+
+\- all lines that start with a # are comments
+\- all empty lines are ignored
+
+.PP
+# The specified times are the power on times.
+# example:
+Mon:16:00-Tue:01:00
+Tue:16:00-Wed:01:00
+Wed:10:35-Thu:01:00
+Thu:16:00-Fri:01:00
+Fri:16:00-Sat:01:00
+Sat:16:00-Sun:01:00
+Sun:16:00-Mon:01:00
+
+When the machine is still up when it is in the off time of the schedule, it checks the CheckStayAwake=... script.
+This script could use whatever it needs to check if the machine should stay still awake. The authors machine, checks
+for open connections using nmap and checks logged in users. This script prints a number of reasons to stay awake.
+In factm the program interprets every other output than "0" as a reason to stay awake.
+
+.PP
+# Check Stay awake
+# An output of <> "0", not ret_val, output on stdout, let it stay awake
+# here the machine always stay awake
+CheckStayAwake=echo 1
+
+
+.B AUTHOR
+Georg Gast <georg@schorsch-tech.de>
+.B "SEE ALSO"
