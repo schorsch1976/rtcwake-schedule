@@ -27,8 +27,12 @@ void usage()
 {
 	// clang-format off
 	std::cout
-		<< "\nrtcwake-schedule " << GIT_VERSION << ": (c) Georg Gast <georg@schorsch-tech.de>\n"
-		<< "Licence: GPL-3.0\n\n"
+		<< "\nrtcwake-schedule " << GIT_VERSION << ": (c) Georg Gast <georg@schorsch-tech.de>\n\n"
+		<< "Licence: GPL-3.0\n"
+		<< "This program is distributed in the hope that it will be useful,\n"
+		<< "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+		<< "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the\n"
+		<< "GNU General Public License for more details.\n\n"
 		<< "Usage:\n\tRun it from cron to read the schedule '" << RC_FILE_PATH << "' and execute the\n"
 		<< "\tcommand given at CheckStayAwake=... and PowerDown=...\n"
 		<< "\tIf CheckStayAwake prints on it's stdout something different than \"0\" it stays\n"
