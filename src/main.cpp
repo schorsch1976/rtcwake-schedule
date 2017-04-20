@@ -33,7 +33,12 @@ void usage()
 		<< "\tcommand given at CheckStayAwake=... and PowerDown=...\n"
 		<< "\tIf CheckStayAwake prints on it's stdout something different than \"0\" it stays\n"
 		<< "\tawake even when its in the off time of the schedule. You can use that, to check for\n"
-		<< "\topen connections on your NAS or server.\n\n" << std::endl;
+		<< "\topen connections on your NAS or server.\n\n"
+
+		<< "Options:\n"
+		<< "\t-t or --test\ttest the configuration. Print the actions and states\n\n"
+		<< std::endl;
+
 	// clang-format on
 }
 
