@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.0)
 project(rtcwake-schedule)
 
 ################################################################################
+# Git is required for build (Version info)
+################################################################################
+FIND_PACKAGE(Git REQUIRED)
+IF (GIT_FOUND)
+	MESSAGE("Git: ${GIT_EXECUTABLE}")
+ELSE (GIT_FOUND)
+	MESSAGE(FATAL_ERROR "Git not found")
+ENDIF (GIT_FOUND)
+
+################################################################################
 # Enable Unit tests
 ################################################################################
 OPTION(BUILD_TESTING "Build Testing" OFF)

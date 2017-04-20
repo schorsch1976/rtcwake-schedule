@@ -14,19 +14,14 @@ SET(SRC_SCHEDULE
 
 ################################################################################
 # version info
+# a repackaged version could set the version string differently like a fixed one
 ################################################################################
-IF(UNIX)
-	EXECUTE_PROCESS(
-	  COMMAND git describe --all --dirty
-	  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	  OUTPUT_VARIABLE GIT_VERSION
-	  OUTPUT_STRIP_TRAILING_WHITESPACE
-	)
-ENDIF(UNIX)
-
-IF(MSVC)
-	SET(GIT_VERSION "windows-unknown")
-ENDIF(MSVC)
+EXECUTE_PROCESS(
+	COMMAND ${GIT_EXECUTABLE} describe --dirty
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	OUTPUT_VARIABLE GIT_VERSION
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 
 ADD_DEFINITIONS(-DGIT_VERSION="${GIT_VERSION}")
 
@@ -48,7 +43,6 @@ IF (BUILD_TESTING)
 	)
 
 	IF(UNIX)
-		
 		SET(TEST_LIBS ${LIBS}
 				${Boost_SYSTEM_LIBRARY}
 				${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
