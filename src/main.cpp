@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include <fstream>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 namespace
 {
@@ -46,19 +46,20 @@ void usage()
 	// clang-format on
 }
 
-// we dont add, for this minimal amount of options, boost::program_options...
-enum class mode_t
+// we dont add, for this minimal amount of options,
+// boost::program_options...
+enum class mode
 {
 	op = 0,
 	test,
 	usage
 };
 
-mode_t parse_options(int argc, char *argv[])
+mode parse_options(int argc, char *argv[])
 {
 	if (argc == 1) // no arguments
 	{
-		return mode_t::op;
+		return mode::op;
 	}
 
 	if (argc == 2)
@@ -66,12 +67,12 @@ mode_t parse_options(int argc, char *argv[])
 		std::string arg = argv[1];
 		if (arg == "-t" || arg == "--test")
 		{
-			return mode_t::test;
+			return mode::test;
 		}
 	}
 
 	// any other case
-	return mode_t::usage;
+	return mode::usage;
 }
 
 } // ns anon
@@ -85,11 +86,11 @@ int main(int argc, char *argv[])
 		auto mode = parse_options(argc, argv);
 		switch (mode)
 		{
-			case mode_t::usage:
+			case mode::usage:
 				usage();
 				return EXIT_FAILURE;
 
-			case mode_t::test:
+			case mode::test:
 			default:
 				// fall through
 				break;
@@ -101,20 +102,20 @@ int main(int argc, char *argv[])
 		std::vector<action_t> sched;
 		std::back_insert_iterator<decltype(sched)> back_inserter(sched);
 
-		if (mode == mode_t::test)
+		if (mode == mode::test)
 		{
 			std::clog << "Read schedule ..." << std::endl;
 		}
 		auto cmds = read_schedule(back_inserter, ifs);
 		std::sort(sched.begin(), sched.end());
 
-		if (mode == mode_t::test)
+		if (mode == mode::test)
 		{
 			std::clog << "Check schedule ..." << std::endl;
 		}
 		check_schedule(sched.begin(), sched.end());
 
-		if (mode == mode_t::test)
+		if (mode == mode::test)
 		{
 			std::clog << "Schedule has " << sched.size() << " entries"
 					  << std::endl;
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
 		auto now = clock_t::now();
 		auto state = get_state(sched.begin(), sched.end(), now);
 
-		if (mode == mode_t::test)
+		if (mode == mode::test)
 		{
 			std::clog << "Current state after time: " << std::boolalpha << state
 					  << std::endl;
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
 		{
 			state = check_stay_awake(cmds, now);
 		}
-		if (mode == mode_t::test)
+		if (mode == mode::test)
 		{
 			std::clog << "Current state after CheckStayAwake: "
 					  << std::boolalpha << state << std::endl;
@@ -156,11 +157,11 @@ int main(int argc, char *argv[])
 
 			switch (mode)
 			{
-				case mode_t::op:
+				case mode::op:
 					execute(power_off_cmd.c_str());
 					break;
 
-				case mode_t::test:
+				case mode::test:
 				default:
 					std::clog << "Would now execute PowerDown script: "
 							  << power_off_cmd << std::endl;

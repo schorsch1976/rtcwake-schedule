@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(main_test)
 {
 	using rtc::clock_t;
 	using namespace rtc;
-	
+
 	const std::string test_schedule =
 		"# Schedule xyz\n"
 		"\n"
