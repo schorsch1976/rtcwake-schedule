@@ -19,7 +19,7 @@ SET(SRC_SCHEDULE
 # a repackaged version could set the version string differently like a fixed one
 ################################################################################
 EXECUTE_PROCESS(
-	COMMAND ${GIT_EXECUTABLE} describe --dirty
+	COMMAND ${GIT_EXECUTABLE} describe --tags --dirty
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	OUTPUT_VARIABLE GIT_VERSION
 	OUTPUT_STRIP_TRAILING_WHITESPACE
