@@ -1,33 +1,52 @@
 # rtcwake-schedule
 
 ## Description
-rtcwake-schedule is a C++ scheduling program called by cron. It reads in a schedule and
-powers off your NAS or server to preserve energy.
+rtcwake-schedule is a C++11 scheduling program called by cron. It reads in a schedule and
+powers off your NAS or server to preserve energy. If it needs to switch off, it calls
+a configurable script to check if it is allowed to power down the PC.
 
-rtcwake-schedule is licended under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html)
+`rtcwake-schedule` is licended under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ## Build requirements
 - CMake
 - C++11 compiler
-- Boost 1.62.0
+- [Boost](https://www.boost.org) >=1.62.0
 - git
 
 ## Runtime requirements
-- rtcwake
-- boost::date_time and boost::system
+- [rtcwake](https://linux.die.net/man/8/rtcwake). In [debian](https://www.debian.org) it is in the package util-linux.
+- std c++ library
 
-To shutdown the NAS or Server, rtcwake-schedule executes the configurable
-command. `%d` gets replaced by the seconds to stays off.
-
+In the config file
 ~~~~~
 # Power down to off state
 PowerDown=/usr/sbin/rtcwake -m off -s %d
 ~~~~~
 
+To shutdown the NAS or Server, rtcwake-schedule executes the configurable
+command. `%d` gets replaced by the seconds to stays off.
+
+## Testing requirements
+- Boost::unit_test_framework library
+- std C++ Library
+
+### Howto run the tests?
+In your build directory just type
+~~~~~
+make tests
+~~~~~
+
+
 ## Writing schedules
-A Schedule is a list of weekday and times.
+A schedule is a list of weekday and times.
 
 This is my schedule. The specified times are "on" times.
+My NAS is just 68.5h (of 172 h) ~ 40% per week on. This cuts
+the electric power need.
+
+You can also wake up your NAS by [WOL](https://en.wikipedia.org/wiki/Wake-on-LAN) and
+check in the `CheckStayAwake` script the uptime to prevent the new shutdown.
+
 ~~~~~
 Mon:16:00-Mon:23:00
 Tue:16:00-Wed:01:00

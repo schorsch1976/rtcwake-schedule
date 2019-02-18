@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(main_test)
 	}
 
 	// Sun 16:00- Sun:24:00
-	while (test_now < week_start + hours(7 * 24))
+	while (test_now <= week_start + hours(7 * 24))
 	{
 		std::string s_now = boost::posix_time::to_iso_string(test_now);
 		BOOST_CHECK(get_state(sched.begin(), sched.end(), test_now) == true);
