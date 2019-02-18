@@ -4,10 +4,13 @@
 rtcwake-schedule is a C++ scheduling program called by cron. It reads in a schedule and
 powers off your NAS or server to preserve energy.
 
+rtcwake-schedule is licended under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html)
+
 ## Build requirements
 - CMake
 - C++11 compiler
 - Boost 1.62.0
+- git
 
 ## Runtime requirements
 - rtcwake
