@@ -18,16 +18,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <cassert>
-#include <chrono>
+#include <iterator>
+
 #include <ctime>
 #include <iterator>
 #include <regex>
 
+#include <boost/date_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+
 namespace rtc
 {
-using clock_t = std::chrono::system_clock;
-using time_point_t = clock_t::time_point;
-using duration_t = clock_t::duration;
+using boost::gregorian::days;
+using boost::posix_time::hours;
+using boost::posix_time::minutes;
+using boost::posix_time::seconds;
+
+using boost::gregorian::date;
+
+using time_point_t = boost::posix_time::ptime;
+using duration_t = boost::posix_time::time_duration;
+
+inline time_point_t now()
+{
+	return boost::posix_time::second_clock::local_time();
+}
 
 class pipe_handle
 {
@@ -72,33 +87,38 @@ struct action_t
 	bool operator<(const action_t &rhs) const { return on < rhs.on; }
 };
 
-tm to_utc_tm(const time_point_t tp)
+time_point_t get_week_start(const time_point_t tp) // aka monday
 {
-	time_t tt = clock_t::to_time_t(tp);
-	tm utc_tm = *gmtime(&tt);
-	return utc_tm;
-}
+	date day(tp.date());
 
-tm to_local_tm(const time_point_t tp)
-{
-	time_t tt = clock_t::to_time_t(tp);
-	tm local_tm = *localtime(&tt);
-	return local_tm;
-}
+	date tmp;
 
-int to_weekday(const tm tp) { return tp.tm_wday; }
+	switch (day.day_of_week())
+	{
+		case boost::gregorian::Monday:
+			tmp = day;
+			break;
+		case boost::gregorian::Tuesday:
+			tmp = day - days(1);
+			break;
+		case boost::gregorian::Wednesday:
+			tmp = day - days(2);
+			break;
+		case boost::gregorian::Thursday:
+			tmp = day - days(3);
+			break;
+		case boost::gregorian::Friday:
+			tmp = day - days(4);
+			break;
+		case boost::gregorian::Saturday:
+			tmp = day - days(5);
+			break;
+		case boost::gregorian::Sunday:
+			tmp = day - days(6);
+			break;
+	}
 
-time_point_t get_week_start(const time_point_t tp)
-{
-	auto ltm = to_local_tm(tp);
-
-	time_point_t work = tp;
-	work -= std::chrono::hours(24 * (ltm.tm_wday - 1));
-	work -= std::chrono::hours(ltm.tm_hour);
-	work -= std::chrono::minutes(ltm.tm_min);
-	work -= std::chrono::seconds(ltm.tm_sec);
-
-	return work;
+	return time_point_t(tmp);
 }
 
 duration_t to_day_duration(std::string s)
@@ -121,7 +141,7 @@ duration_t to_day_duration(std::string s)
 	else
 		throw std::runtime_error("to_day_duration(): Unknown day: " + s);
 
-	return scale * std::chrono::hours(24);
+	return hours(scale * 24);
 }
 
 duration_t to_hour_duration(std::string s)
@@ -130,9 +150,9 @@ duration_t to_hour_duration(std::string s)
 	std::smatch what;
 	if (std::regex_match(s, what, ex))
 	{
-		auto hours = std::atol(what[1].str().c_str());
-		auto mins = std::atol(what[2].str().c_str());
-		return std::chrono::hours(hours) + std::chrono::minutes(mins);
+		auto h = std::atol(what[1].str().c_str());
+		auto m = std::atol(what[2].str().c_str());
+		return hours(h) + minutes(m);
 	}
 	else
 	{
@@ -145,7 +165,7 @@ template <typename inserter_t>
 cmd_t read_schedule(inserter_t inserter, std::istream &is)
 {
 	// get the begin of this week
-	auto week_start = get_week_start(clock_t::now());
+	auto week_start = get_week_start(now());
 
 	std::regex ex_action("(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([0-2][0-9]):([0-5][0-"
 						 "9])\\-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([0-2][0-9]):([0-"
@@ -177,6 +197,16 @@ cmd_t read_schedule(inserter_t inserter, std::istream &is)
 
 			off += to_hour_duration(end_time);
 			off += to_day_duration(end_day);
+
+			// handle the special case: like "Sun:16:00-Mon:01:00"
+			if (off < on)
+			{
+				// but this also means we need to add on time week_start to off
+				inserter = {week_start, off};
+
+				// this is the last entry
+				off += hours(7 * 24);
+			}
 
 			inserter = {on, off};
 		}
@@ -228,7 +258,7 @@ void check_schedule(iterator_t begin, iterator_t end)
 		{
 			// everything ok, if we go to the next week
 			assert(a.off > a.on);
-			return (a.off - a.on) > std::chrono::hours(24 * 7);
+			return (a.off - a.on) > hours(24 * 7);
 		}
 	});
 	if (pos2 != end)
@@ -263,7 +293,7 @@ bool get_state(iterator_t begin, iterator_t end, const time_point_t tp)
 	auto pos_is_on = std::find_if(begin, end, [tp](const action_t &a) -> bool {
 		if (a.on < a.off)
 		{
-			return a.on <= tp && tp <= a.off;
+			return a.on <= tp && tp < a.off;
 		}
 		else
 		{
@@ -292,6 +322,16 @@ time_point_t get_next_on_time(iterator_t begin, iterator_t end,
 
 	if (pos == end)
 	{
+		// the time is before or after the last entry in the schedule
+		if (std::distance(begin, end) > 0)
+		{
+			if (tp < begin->on)
+			{
+				// ok we need to sleep until the first entry in the schedule
+				return begin->on;
+			}
+		}
+
 		throw std::runtime_error("get_next_on_time: pos == end failed");
 	}
 
@@ -322,9 +362,8 @@ std::string build_power_off_command(iterator_t begin, iterator_t end,
 	// build the command
 	std::string cmd;
 	{
-		auto sec_to_sleep =
-			std::chrono::duration_cast<std::chrono::seconds>(wake_up_at - now);
-		auto s_sec = std::to_string(sec_to_sleep.count());
+		auto sec_to_sleep = (wake_up_at - now).total_seconds();
+		auto s_sec = std::to_string(sec_to_sleep);
 
 		auto pos = cmds.power_down.find("%d");
 		if (pos == std::string::npos)

@@ -79,7 +79,6 @@ mode parse_options(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-	using rtc::clock_t;
 	using namespace rtc;
 	try
 	{
@@ -128,7 +127,7 @@ int main(int argc, char *argv[])
 			throw std::runtime_error("Empty schedule");
 		}
 
-		auto now = clock_t::now();
+		auto now = rtc::now();
 		auto state = get_state(sched.begin(), sched.end(), now);
 
 		if (mode == mode::test)

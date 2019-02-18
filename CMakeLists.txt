@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(rtcwake-schedule)
 
+SET(BOOST_REQUIRED_VERSION "1.62.0")
+
 ################################################################################
 # Git is required for build (Version info)
 ################################################################################
@@ -19,13 +21,25 @@ IF (BUILD_TESTING)
 	INCLUDE(CTest)
 	ENABLE_TESTING()
 
-	################################################################################
-	# boost, only required for tests
-	################################################################################
-	SET(Boost_USE_STATIC_LIBS ON)
-	SET(Boost_ADDITIONAL_VERSIONS "1.55.0")
-	FIND_PACKAGE(Boost "1.55.0" COMPONENTS system unit_test_framework REQUIRED)
+	FIND_PACKAGE(Boost ${BOOST_REQUIRED_VERSION} COMPONENTS
+		system
+		unit_test_framework
+			REQUIRED)
+
 ENDIF (BUILD_TESTING)
+
+################################################################################
+# boost
+################################################################################
+SET(Boost_USE_STATIC_LIBS ON)
+SET(Boost_ADDITIONAL_VERSIONS ${BOOST_REQUIRED_VERSION})
+FIND_PACKAGE(Boost ${BOOST_REQUIRED_VERSION} COMPONENTS
+	date_time system
+		REQUIRED)
+ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK=1)
+
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
 ################################################################################
 # general options for configuration

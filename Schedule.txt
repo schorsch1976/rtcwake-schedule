@@ -12,7 +12,7 @@ Sun:16:00-Mon:01:00
 # Check Stay awake
 # An output of <> "0", not ret_val, output on stdout, let it stay awake
 # here the machine always stay awake
-CheckStayAwake=echo 1
+CheckStayAwake=echo 0
 
 # Power down to off state
 PowerDown=/usr/sbin/rtcwake -m off -s %d
