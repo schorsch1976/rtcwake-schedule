@@ -1,18 +1,18 @@
-# Schedule xyz
+# Schedule to shutdown the machine and wake it up again
 
+# example:
 Mon:16:00-Tue:01:00
 Tue:16:00-Wed:01:00
 Wed:10:35-Thu:01:00
 Thu:16:00-Fri:01:00
 Fri:16:00-Sat:01:00
-Sat:16:00-Sun:01:00 # Hmmm braucht es das?
-
-# special case
+Sat:16:00-Sun:01:00
 Sun:16:00-Mon:01:00
 
 # Check Stay awake
 # An output of <> "0", not ret_val, output on stdout, let it stay awake
+# here the machine always stay awake
 CheckStayAwake=echo 0
 
-# Power down to off state  
+# Power down to off state
 PowerDown=/usr/sbin/rtcwake -m off -s %d
