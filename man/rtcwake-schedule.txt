@@ -13,22 +13,33 @@ rtcwake-schedule \- use rtcwake based on a complex schedule
 .B rtcwake-schedule
 use rtcwake based on a complex schedule
 .SH OPTIONS
-.TP
+.TP 5
 .BR \-h ", " \-\-help\fR
 Print the help and licence information.
+
+.TP  5
 .BR \-f ", " \-\-force\fR
 Force the shutdown and wait until the next on time is reached. Overrides the CheckStayAwake result.
+
+.TP  5
 .BR \-t ", " \-\-test\fR
 Test the configuration. Be verbose abouts its state. Does not execute the PowerDown script.
-.B FILES
+
+.SH FILES
 .PP
 .I /etc/rtcwake-schedule/schedule
-This files configures the schedule. It is a human readable syntax.
+This files configures the schedule. It is a human readable file.
 
-\- all lines that start with a # are comments
-\- all empty lines are ignored
+.SH EXAMPLE
+.B Example file with description
+
+.nf
+All lines that start with a # are comments
+All empty lines are ignored
+.fi
 
 .PP
+.nf
 # The specified times are the power on times.
 # example:
 Mon:16:00-Tue:01:00
@@ -38,19 +49,20 @@ Thu:16:00-Fri:01:00
 Fri:16:00-Sat:01:00
 Sat:16:00-Sun:01:00
 Sun:16:00-Mon:01:00
-
-When the machine is still up when it is in the off time of the schedule, it checks the CheckStayAwake=... script.
-This script could use whatever it needs to check if the machine should stay still awake. The authors machine, checks
-for open connections using nmap and checks logged in users. This script prints a number of reasons to stay awake.
-In factm the program interprets every other output than "0" as a reason to stay awake.
+.fi
 
 .PP
+When the machine is still up when it is in the off time of the schedule, it checks the CheckStayAwake=... script. This script could use whatever it needs to check if the machine should stay still awake. The authors NAS, checks for open connections using netstat and checks logged in users. This script prints a number of reasons to stay awake. In fact the program interprets every other output than "0" as a reason to stay awake.
+
+.PP
+.nf
 # Check Stay awake
 # An output of <> "0", not ret_val, output on stdout, let it stay awake
 # here the machine always stay awake
-CheckStayAwake=echo 1
+CheckStayAwake=echo 0
+.fi
 
-
-.B AUTHOR
+.SH AUTHOR
 Georg Gast <georg@schorsch-tech.de>
-.B "SEE ALSO"
+.SH "SEE ALSO"
+\fBnetstat (8), \fBrtcwake (8)

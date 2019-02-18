@@ -3,14 +3,12 @@ IF(UNIX)
 
 	ADD_CUSTOM_COMMAND(
 		TARGET man
-		SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/rtcwake-schedule.txt
-		COMMAND pod2man ARGS -s 1 -c "rtcwake-schedule manual" ${CMAKE_CURRENT_SOURCE_DIR}/rtcwake-schedule.txt ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1
+		COMMAND groff -man -Tascii ${CMAKE_CURRENT_SOURCE_DIR}/rtcwake-schedule.txt > ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1
 		OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1
 	)
 
 	ADD_CUSTOM_COMMAND(
 		TARGET man
-		SOURCE man
 		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1
 	)
 
