@@ -40,6 +40,8 @@ void usage()
 		<< "\topen connections on your NAS or server.\n\n"
 
 		<< "Options:\n"
+		<< "\t-h or --help\tPrint the usage information\n"
+		<< "\t-f or --force\tforce the shutdown even the CheckStayAwake reports !=0\n"
 		<< "\t-t or --test\ttest the configuration. Print the actions and states\n\n"
 		<< std::endl;
 
@@ -48,31 +50,55 @@ void usage()
 
 // we dont add, for this minimal amount of options,
 // boost::program_options...
-enum class mode
+enum class mode_t
 {
 	op = 0,
+	forced,
 	test,
 	usage
 };
 
-mode parse_options(int argc, char *argv[])
+struct options
 {
+	mode_t mode = mode_t::op;
+	bool forced = false;
+};
+
+options parse_options(int argc, char *argv[])
+{
+	options opts;
 	if (argc == 1) // no arguments
 	{
-		return mode::op;
+		return opts;
 	}
 
-	if (argc == 2)
+	for (int i = 1; i < argc; ++i)
 	{
-		std::string arg = argv[1];
+		std::string arg = argv[i];
 		if (arg == "-t" || arg == "--test")
 		{
-			return mode::test;
+			opts.mode = mode_t::test;
+		}
+		else if (arg == "-f" || arg == "--force")
+		{
+			opts.forced = true;
+		}
+		else if (arg == "-h" || arg == "--help")
+		{
+			opts.mode = mode_t::usage;
+			opts.forced = false;
+			return opts;
+		}
+		else
+		{
+			// any unhandled case, usage
+			opts.mode = mode_t::usage;
+			opts.forced = false;
+			return opts;
 		}
 	}
 
-	// any other case
-	return mode::usage;
+	return opts;
 }
 
 } // ns anon
@@ -82,14 +108,14 @@ int main(int argc, char *argv[])
 	using namespace rtc;
 	try
 	{
-		auto mode = parse_options(argc, argv);
-		switch (mode)
+		auto opts = parse_options(argc, argv);
+		switch (opts.mode)
 		{
-			case mode::usage:
+			case mode_t::usage:
 				usage();
 				return EXIT_FAILURE;
 
-			case mode::test:
+			case mode_t::test:
 			default:
 				// fall through
 				break;
@@ -101,20 +127,20 @@ int main(int argc, char *argv[])
 		std::vector<action_t> sched;
 		std::back_insert_iterator<decltype(sched)> back_inserter(sched);
 
-		if (mode == mode::test)
+		if (opts.mode == mode_t::test)
 		{
 			std::clog << "Read schedule ..." << std::endl;
 		}
 		auto cmds = read_schedule(back_inserter, ifs);
 		std::sort(sched.begin(), sched.end());
 
-		if (mode == mode::test)
+		if (opts.mode == mode_t::test)
 		{
 			std::clog << "Check schedule ..." << std::endl;
 		}
 		check_schedule(sched.begin(), sched.end());
 
-		if (mode == mode::test)
+		if (opts.mode == mode_t::test)
 		{
 			std::clog << "Schedule has " << sched.size() << " entries"
 					  << std::endl;
@@ -130,7 +156,7 @@ int main(int argc, char *argv[])
 		auto now = rtc::now();
 		auto state = get_state(sched.begin(), sched.end(), now);
 
-		if (mode == mode::test)
+		if (opts.mode == mode_t::test)
 		{
 			std::clog << "Current state after time: " << std::boolalpha << state
 					  << std::endl;
@@ -141,8 +167,14 @@ int main(int argc, char *argv[])
 		if (!state)
 		{
 			state = check_stay_awake(cmds, now);
+
+			// force the shutdown?
+			if (opts.forced)
+			{
+				state = false;
+			}
 		}
-		if (mode == mode::test)
+		if (opts.mode == mode_t::test)
 		{
 			std::clog << "Current state after CheckStayAwake: "
 					  << std::boolalpha << state << std::endl;
@@ -154,13 +186,13 @@ int main(int argc, char *argv[])
 			auto power_off_cmd =
 				build_power_off_command(sched.begin(), sched.end(), cmds, now);
 
-			switch (mode)
+			switch (opts.mode)
 			{
-				case mode::op:
+				case mode_t::op:
 					execute(power_off_cmd.c_str());
 					break;
 
-				case mode::test:
+				case mode_t::test:
 				default:
 					std::clog << "Would now execute PowerDown script: "
 							  << power_off_cmd << std::endl;

@@ -3,13 +3,21 @@
 rtcwake-schedule \- use rtcwake based on a complex schedule
 .SH SYNOPSIS
 .B rtcwake-schedule
+[\fB\-h\fR]
+[\fB\--help\fR]
 [\fB\-t\fR]
 [\fB\--test\fR]
+[\fB\-f\fR]
+[\fB\--force\fR]
 .SH DESCRIPTION
 .B rtcwake-schedule
 use rtcwake based on a complex schedule
 .SH OPTIONS
 .TP
+.BR \-h ", " \-\-help\fR
+Print the help and licence information.
+.BR \-f ", " \-\-force\fR
+Force the shutdown and wait until the next on time is reached. Overrides the CheckStayAwake result.
 .BR \-t ", " \-\-test\fR
 Test the configuration. Be verbose abouts its state. Does not execute the PowerDown script.
 .B FILES
