@@ -345,5 +345,5 @@ BOOST_AUTO_TEST_CASE(main_test)
 		test_now += minutes(1);
 		++cnt;
 	}
-	BOOST_CHECK(cnt == 7 * 24 * 60 );
+	BOOST_CHECK(cnt == 7 * 24 * 60 + 1);
 }
