@@ -2,6 +2,8 @@
 # common libs
 ################################################################################
 SET(LIBS
+	Boost::date_time
+	Boost::system
 )
 
 ################################################################################
@@ -42,15 +44,9 @@ IF (BUILD_TESTING)
 			rtcwake-schedule.h
 	)
 
-	IF(UNIX)
-		SET(TEST_LIBS ${LIBS}
-				${Boost_SYSTEM_LIBRARY}
-				${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-		)
-	ELSE(UNIX)
-		SET(TEST_LIBS ${LIBS}
-		)
-	ENDIF(UNIX)
+	SET(TEST_LIBS ${LIBS}
+		Boost::unit_test_framework
+	)
 
 	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 	LINK_DIRECTORIES(${Boost_LIBRARY_DIR})

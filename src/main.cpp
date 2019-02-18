@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <iostream>
 
-namespace
+namespace ours
 {
 void usage()
 {
@@ -101,11 +101,13 @@ options parse_options(int argc, char *argv[])
 	return opts;
 }
 
-} // ns anon
+} // ns ours
 
 int main(int argc, char *argv[])
 {
 	using namespace rtc;
+	using namespace ours;
+	using ours::mode_t;
 	try
 	{
 		auto opts = parse_options(argc, argv);
