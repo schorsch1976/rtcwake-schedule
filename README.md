@@ -14,6 +14,15 @@ a configurable script to check if it is allowed to power down the PC.
 - git
 - groff and gzip (for the man page)
 
+### Build it from source
+- cd .../rtcwake-schedule
+- mkdir build
+- cd build
+- cmake ..
+- make -j2
+- make install
+
+
 ## Runtime requirements
 - [rtcwake](https://linux.die.net/man/8/rtcwake). In [debian](https://www.debian.org) it is in the package util-linux.
 - std c++ library
