@@ -6,14 +6,14 @@ IF(UNIX)
 		ADD_CUSTOM_COMMAND(
 			TARGET man
 			COMMAND groff -man -Tutf8 ${CMAKE_CURRENT_SOURCE_DIR}/rtcwake-schedule.txt | gzip -9 > ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1.gz
-			OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1
+			OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1.gz
 		)
 
 		ADD_CUSTOM_COMMAND(
 			TARGET man
-			DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1
+			DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1.gz
 		)
 
-		INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1 DESTINATION ${CMAKE_INSTALL_PREFIX}/man/man1)
+		INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1.gz DESTINATION ${CMAKE_INSTALL_PREFIX}/man/man1)
 	ENDIF(BUILD_MAN_PAGE)
 ENDIF(UNIX)
