@@ -12,7 +12,7 @@ a configurable script to check if it is allowed to power down the PC.
 - C++11 compiler
 - [Boost](https://www.boost.org) >=1.62.0
 - git
-- groff (for the man page)
+- groff and gzip (for the man page)
 
 ## Runtime requirements
 - [rtcwake](https://linux.die.net/man/8/rtcwake). In [debian](https://www.debian.org) it is in the package util-linux.

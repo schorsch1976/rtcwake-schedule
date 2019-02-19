@@ -1,6 +1,7 @@
-.TH rtcwake-schedule 1 "20 May 2017" "version 0.1.1"
+.TH rtcwake-schedule 1 "19 Feb 2019" "version 0.3"
 .SH NAME
 rtcwake-schedule \- use rtcwake based on a complex schedule
+
 .SH SYNOPSIS
 .B rtcwake-schedule
 [\fB\-h\fR]
@@ -10,51 +11,69 @@ rtcwake-schedule \- use rtcwake based on a complex schedule
 [\fB\-f\fR]
 [\fB\--force\fR]
 .SH DESCRIPTION
-.B rtcwake-schedule
-use rtcwake based on a complex schedule
+
+\fBrtcwake-schedule\fR is designed to schedule the power up state of the machine on a weekly basis.
+
+\fBrtcwake-scheduke\fR compiles and runs on linux, freebsd and windows as it is plain c++11, but on freebsd there is no known rtcwake program that could be used to program the rtc for wakeup. If there exists one, please email it to the author.
+
 .SH OPTIONS
 .TP 5
 .BR \-h ", " \-\-help\fR
 Print the help and licence information.
-
 .TP  5
 .BR \-f ", " \-\-force\fR
-Force the shutdown and wait until the next on time is reached. Overrides the CheckStayAwake result.
-
+Force the shutdown and set the next wake up time to the rtc. Overrides the CheckStayAwake result.
 .TP  5
 .BR \-t ", " \-\-test\fR
 Test the configuration. Be verbose abouts its state. Does not execute the PowerDown script.
 
 .SH FILES
-.PP
+.TP 5
 .I /etc/rtcwake-schedule/schedule
 This files configures the schedule. It is a human readable file.
 
-.SH EXAMPLE
-.B Example file with description
+.SH CONFIGURATION FILE
+
+.SS Example file with description
 
 .nf
-All lines that start with a # are comments
-All empty lines are ignored
+- Everything after # are comments
+- Empty lines are ignored
 .fi
 
-.PP
+.SS Day syntax
+.nf
+- Mon Monday
+- Tue Tuesday
+- Wed Wednesday
+- Thu Thuesday
+- Fri Friday
+- Sat Saturday
+- Sun Sunday
+.fi
+
+.SS Example schedule
 .nf
 # The specified times are the power on times.
 # example:
 Mon:16:00-Tue:01:00
 Tue:16:00-Wed:01:00
-Wed:10:35-Thu:01:00
+Wed:10:35-Thu:01:00 # we can add comments afterwards
 Thu:16:00-Fri:01:00
 Fri:16:00-Sat:01:00
 Sat:16:00-Sun:01:00
 Sun:16:00-Mon:01:00
 .fi
 
+.SS Check stay awake
 .PP
-When the machine is still up when it is in the off time of the schedule, it checks the CheckStayAwake=... script. This script could use whatever it needs to check if the machine should stay still awake. The authors NAS, checks for open connections using netstat and checks logged in users. This script prints a number of reasons to stay awake. In fact the program interprets every other output than "0" as a reason to stay awake.
+When the machine is still up and it is in the off time of the schedule, it checks the \fBCheckStayAwake=...\fR script. This script could use whatever it
+needs
+to
+check if the machine should stay still awake. The authors NAS, checks for open connections using netstat and checks logged in users. This script prints a number of reasons to stay awake. In fact the program interprets every other output than "0" as a reason to stay awake.
 
-.PP
+.B Always shut down at the specified time
+
 .nf
 # Check Stay awake
 # An output of <> "0", not ret_val, output on stdout, let it stay awake
@@ -62,7 +81,32 @@ When the machine is still up when it is in the off time of the schedule, it chec
 CheckStayAwake=echo 0
 .fi
 
+.PP
+.B Check for open connections before shutting down
+
+.nf
+# Check Stay awake
+# An output of <> "0", not ret_val, output on stdout, let it stay awake
+# here the machine always stay awake
+CheckStayAwake=netstat | grep tcp | wc -l
+.fi
+
+.SS PowerDown
+This command gets executed with %d replaced with the seconds needed to wait to the next wake up time.
+
+.nf
+# Power down to off state
+PowerDown=/usr/sbin/rtcwake -m off -s %d
+.fi
+
 .SH AUTHOR
 Georg Gast <georg@schorsch-tech.de>
+
 .SH "SEE ALSO"
-\fBnetstat (8), \fBrtcwake (8)
+\fBnetstat (8), \fBrtcwake (8), \fbgrep (1), \fbwc (1)
+
+.SH BUGS
+Please report bugs at
+
+.B
+https://github.com/schorsch1976/rtcwake-schedule/issues
