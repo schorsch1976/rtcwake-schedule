@@ -5,7 +5,7 @@ IF(UNIX)
 
 		ADD_CUSTOM_COMMAND(
 			TARGET man
-			COMMAND groff -man -Tutf8 ${CMAKE_CURRENT_SOURCE_DIR}/rtcwake-schedule.txt | gzip -9 > ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1.gz
+			COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/rtcwake-schedule.txt | gzip -9 > ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1.gz
 			OUTPUTS ${CMAKE_CURRENT_BINARY_DIR}/rtcwake-schedule.1.gz
 		)
 
