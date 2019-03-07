@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(syntax_error_test)
 
 	try
 	{
-		auto cmds = read_schedule(back_inserter, iss);
+		auto cmds = read_schedule(back_inserter, iss, rtc::now());
 		BOOST_REQUIRE(false);
 	}
 	catch (const std::exception &ex)
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(on_smaller_off)
 	std::vector<action_t> sched;
 	std::back_insert_iterator<decltype(sched)> back_inserter(sched);
 
-	read_schedule(back_inserter, iss);
+	read_schedule(back_inserter, iss, rtc::now());
 
 	for (auto& c : sched)
 	{
@@ -136,7 +136,9 @@ BOOST_AUTO_TEST_CASE(get_next_on_time_test_1)
 	std::vector<action_t> sched;
 	std::back_insert_iterator<decltype(sched)> back_inserter(sched);
 
-	auto cmds = read_schedule(back_inserter, iss);
+	time_point_t now = boost::posix_time::time_from_string("2019-02-19 12:43:12");
+
+	auto cmds = read_schedule(back_inserter, iss, now);
 	BOOST_CHECK(sched.size() > 0);
 
 	auto debug_schedule = to_string(sched.begin(), sched.end());
@@ -148,7 +150,6 @@ BOOST_AUTO_TEST_CASE(get_next_on_time_test_1)
 	check_schedule(sched.begin(), sched.end());
 
 	// Tue: we must be off
-	time_point_t now = boost::posix_time::time_from_string("2019-02-19 12:43:12");
 	BOOST_CHECK(get_state(sched.begin(), sched.end(), now) == false);
 
 	time_point_t next_on = get_next_on_time(sched.begin(), sched.end(), now);
@@ -163,7 +164,9 @@ BOOST_AUTO_TEST_CASE(get_next_on_time_test_2)
 	std::vector<action_t> sched;
 	std::back_insert_iterator<decltype(sched)> back_inserter(sched);
 
-	auto cmds = read_schedule(back_inserter, iss);
+	time_point_t now = boost::posix_time::time_from_string("2019-02-18 10:57:00");
+
+	auto cmds = read_schedule(back_inserter, iss, now);
 	BOOST_CHECK(sched.size() > 0);
 
 	auto debug_schedule = to_string(sched.begin(), sched.end());
@@ -175,12 +178,36 @@ BOOST_AUTO_TEST_CASE(get_next_on_time_test_2)
 	check_schedule(sched.begin(), sched.end());
 
 	// Tue: we must be off
-	time_point_t now = boost::posix_time::time_from_string("2019-02-18 10:57:00");
 	BOOST_CHECK(get_state(sched.begin(), sched.end(), now) == false);
 
 	time_point_t next_on = get_next_on_time(sched.begin(), sched.end(), now);
 	std::string s_next_on = to_iso_string(next_on);
 	BOOST_CHECK(s_next_on == "20190218T160000");
+}
+
+BOOST_AUTO_TEST_CASE(get_next_on_time_test_3)
+{
+	// error reporting is done by exceptions
+	std::istringstream iss(test_schedule);
+	std::vector<action_t> sched;
+	std::back_insert_iterator<decltype(sched)> back_inserter(sched);
+
+	time_point_t now = boost::posix_time::time_from_string("2019-02-28 10:57:00");
+
+	auto cmds = read_schedule(back_inserter, iss, now);
+	BOOST_CHECK(sched.size() > 0);
+
+	auto debug_schedule = to_string(sched.begin(), sched.end());
+
+	std::sort(sched.begin(), sched.end());
+	check_schedule(sched.begin(), sched.end());
+
+	// Tue: we must be off
+	BOOST_CHECK(get_state(sched.begin(), sched.end(), now) == false);
+
+	time_point_t next_on = get_next_on_time(sched.begin(), sched.end(), now);
+	std::string s_next_on = to_iso_string(next_on);
+	BOOST_CHECK(s_next_on == "20190228T160000");
 }
 
 BOOST_AUTO_TEST_CASE(main_test)
@@ -190,7 +217,8 @@ BOOST_AUTO_TEST_CASE(main_test)
 	std::vector<action_t> sched;
 	std::back_insert_iterator<decltype(sched)> back_inserter(sched);
 
-	auto cmds = read_schedule(back_inserter, iss);
+	auto now = rtc::now();
+	auto cmds = read_schedule(back_inserter, iss, now);
 	BOOST_CHECK(sched.size() > 0);
 
 	auto debug_schedule = to_string(sched.begin(), sched.end());
@@ -202,9 +230,8 @@ BOOST_AUTO_TEST_CASE(main_test)
 	check_schedule(sched.begin(), sched.end());
 
 	// now test for each minute if there is the right thing reported
-	auto test_now = get_week_start(rtc::now());
+	auto test_now = get_week_start(now);
 	auto week_start = test_now;
-
 
 	std::string ns = boost::posix_time::to_simple_string(rtc::now());
 	std::string tns = boost::posix_time::to_simple_string(test_now);

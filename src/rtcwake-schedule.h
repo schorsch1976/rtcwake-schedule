@@ -162,10 +162,10 @@ duration_t to_hour_duration(std::string s)
 }
 
 template <typename inserter_t>
-cmd_t read_schedule(inserter_t inserter, std::istream &is)
+cmd_t read_schedule(inserter_t inserter, std::istream &is, const time_point_t now)
 {
 	// get the begin of this week
-	auto week_start = get_week_start(now());
+	auto week_start = get_week_start(now);
 
 	// clang-format off
 	std::regex ex_action("(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([0-2][0-9]):([0-5][0-9])\\-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):([0-2][0-9]):([0-5][0-9])( |\t|#.*)*");

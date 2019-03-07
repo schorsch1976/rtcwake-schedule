@@ -133,7 +133,8 @@ int main(int argc, char *argv[])
 		{
 			std::clog << "Read schedule ..." << std::endl;
 		}
-		auto cmds = read_schedule(back_inserter, ifs);
+		auto now = rtc::now();
+		auto cmds = read_schedule(back_inserter, ifs, now);
 		std::sort(sched.begin(), sched.end());
 
 		if (opts.mode == mode_t::test)
@@ -155,7 +156,6 @@ int main(int argc, char *argv[])
 			throw std::runtime_error("Empty schedule");
 		}
 
-		auto now = rtc::now();
 		auto state = get_state(sched.begin(), sched.end(), now);
 
 		if (opts.mode == mode_t::test)
