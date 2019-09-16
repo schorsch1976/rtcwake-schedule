@@ -28,6 +28,7 @@ void usage()
 	// clang-format off
 	std::cout
 		<< "\nrtcwake-schedule " << GIT_VERSION << ": (c) Georg Gast <georg@schorsch-tech.de>\n\n"
+		<< "Homepage: https://github.com/schorsch1976/rtcwake-schedule\n\n"
 		<< "Licence: GPL-3.0\n"
 		<< "\tThis program is distributed in the hope that it will be useful,\n"
 		<< "\tbut WITHOUT ANY WARRANTY; without even the implied warranty of\n"
