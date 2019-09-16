@@ -87,6 +87,14 @@ struct action_t
 	bool operator<(const action_t &rhs) const { return on < rhs.on; }
 };
 
+// for debugging
+std::string to_string(const action_t &action)
+{
+	std::string s_on = boost::posix_time::to_iso_string(action.on);
+	std::string s_off = boost::posix_time::to_iso_string(action.off);
+	return s_on + "-" + s_off;
+}
+
 time_point_t get_week_start(const time_point_t tp) // aka monday
 {
 	date day(tp.date());
@@ -162,7 +170,8 @@ duration_t to_hour_duration(std::string s)
 }
 
 template <typename inserter_t>
-cmd_t read_schedule(inserter_t inserter, std::istream &is, const time_point_t now)
+cmd_t read_schedule(inserter_t inserter, std::istream &is,
+					const time_point_t now)
 {
 	// get the begin of this week
 	auto week_start = get_week_start(now);
@@ -276,7 +285,6 @@ void check_schedule(iterator_t begin, iterator_t end)
 				{
 					return (a.on >= b.on && a.on <= b.off);
 				}
-
 			});
 
 			return p != end;
@@ -317,22 +325,40 @@ time_point_t get_next_on_time(iterator_t begin, iterator_t end,
 	// 1. check on < off and next on > last off
 	auto pos = std::adjacent_find(
 		begin, end, [tp](const action_t &a1, const action_t &a2) -> bool {
-			return a1.off < tp && tp < a2.on;
+			return a1.off <= tp && tp < a2.on;
 		});
 
 	if (pos == end)
 	{
 		// the time is before or after the last entry in the schedule
+		auto distance = std::distance(begin, end);
 		if (std::distance(begin, end) > 0)
 		{
+			// is the time before the first entry?
 			if (tp < begin->on)
 			{
 				// ok we need to sleep until the first entry in the schedule
 				return begin->on;
 			}
+
+			// is the next start in the next week?
+			if (tp > (begin + distance)->off)
+			{
+				// ok: wee need to sleep until the start in the next week
+				return begin->on + boost::posix_time::hours(7 * 24);
+			}
 		}
 
-		throw std::runtime_error("get_next_on_time: pos == end failed");
+		// we failed to get the next on time: Print some debug info
+		std::string debug;
+		debug += "TP: " + boost::posix_time::to_iso_string(tp) + "\n";
+		for (iterator_t it = begin; it != end; ++it)
+		{
+			debug += to_string(*it) + "\n";
+		}
+
+		throw std::runtime_error("get_next_on_time: pos == end failed\n" +
+								 debug);
 	}
 
 	pos++;
@@ -412,6 +438,6 @@ bool check_stay_awake(cmd_t cmds, const time_point_t now)
 	return response != "0\n";
 }
 
-} // ns rtc
+} // namespace rtc
 
 #endif // rtcwake_schedule_h

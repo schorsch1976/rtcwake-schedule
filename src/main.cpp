@@ -101,7 +101,7 @@ options parse_options(int argc, char *argv[])
 	return opts;
 }
 
-} // ns ours
+} // namespace ours
 
 int main(int argc, char *argv[])
 {
