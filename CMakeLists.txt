@@ -8,7 +8,7 @@ SET(BOOST_REQUIRED_VERSION "1.62.0")
 ################################################################################
 FIND_PACKAGE(Git REQUIRED)
 IF (GIT_FOUND)
-	MESSAGE("Git: ${GIT_EXECUTABLE}")
+	MESSAGE(STATUS "Git: ${GIT_EXECUTABLE}")
 ELSE (GIT_FOUND)
 	MESSAGE(FATAL_ERROR "Git not found")
 ENDIF (GIT_FOUND)
