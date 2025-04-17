@@ -38,4 +38,4 @@ unit-test-job:   # This job runs in the test stage.
     - mkdir build
     - cmake -B build .
     - cmake --build build
-    - ctest --test-dir build
+    - ./build/src/rtcwake-schedule-test --log_level=all --log_format=JUNIT
