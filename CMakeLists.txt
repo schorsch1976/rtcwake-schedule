@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 project(rtcwake-schedule)
 
-cmake_policy(SET CMP0167 OLD)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.31.0")
+	cmake_policy(SET CMP0167 OLD)
+endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "")
 	set (CMAKE_BUILD_TYPE "Release")
