@@ -53,6 +53,5 @@ if (BUILD_TESTING)
 			Boost::unit_test_framework
 	)
 
-	add_test(NAME rtcwake-schedule-test
-			COMMAND rtcwake-schedule-test --log_format=JUNIT --log_level=all)
+	add_test(rtcwake-schedule-test rtcwake-schedule-test)
 endif()
