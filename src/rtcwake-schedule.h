@@ -47,9 +47,9 @@ inline time_point_t now()
 class pipe_handle
 {
 public:
-	explicit pipe_handle(FILE *fp) : m_fp(fp) {}
+	explicit pipe_handle(FILE* fp) : m_fp(fp) {}
 
-	operator FILE *() { return m_fp; }
+	operator FILE*() { return m_fp; }
 
 	~pipe_handle()
 	{
@@ -65,7 +65,7 @@ public:
 	}
 
 private:
-	FILE *m_fp;
+	FILE* m_fp;
 };
 
 struct cmd_t
@@ -79,16 +79,16 @@ struct action_t
 	time_point_t on;
 	time_point_t off;
 
-	bool operator==(const action_t &rhs) const
+	bool operator==(const action_t& rhs) const
 	{
 		return on == rhs.on && off == rhs.off;
 	}
-	bool operator!=(const action_t &rhs) const { return !(*this == rhs); }
-	bool operator<(const action_t &rhs) const { return on < rhs.on; }
+	bool operator!=(const action_t& rhs) const { return !(*this == rhs); }
+	bool operator<(const action_t& rhs) const { return on < rhs.on; }
 };
 
 // for debugging
-std::string to_string(const action_t &action)
+std::string to_string(const action_t& action)
 {
 	std::string s_on = boost::posix_time::to_iso_string(action.on);
 	std::string s_off = boost::posix_time::to_iso_string(action.off);
@@ -170,7 +170,7 @@ duration_t to_hour_duration(std::string s)
 }
 
 template <typename inserter_t>
-cmd_t read_schedule(inserter_t inserter, std::istream &is,
+cmd_t read_schedule(inserter_t inserter, std::istream& is,
 					const time_point_t now)
 {
 	// get the begin of this week
@@ -249,9 +249,8 @@ void check_schedule(iterator_t begin, iterator_t end)
 {
 	// 1. check on < off and next on > last off
 	auto pos1 = std::adjacent_find(
-		begin, end, [](const action_t &a1, const action_t &a2) -> bool {
-			return a1.off > a2.on;
-		});
+		begin, end, [](const action_t& a1, const action_t& a2) -> bool
+		{ return a1.off > a2.on; });
 	if (pos1 != end)
 	{
 		throw std::runtime_error(
@@ -259,17 +258,19 @@ void check_schedule(iterator_t begin, iterator_t end)
 	}
 
 	// 2. check that each items on < off
-	auto pos2 = std::find_if(begin, end, [](const action_t &a) -> bool {
-		bool tmp = a.off > a.on;
-		if (!tmp)
-			return false;
-		else
-		{
-			// everything ok, if we go to the next week
-			assert(a.off > a.on);
-			return (a.off - a.on) > hours(24 * 7);
-		}
-	});
+	auto pos2 = std::find_if(begin, end,
+							 [](const action_t& a) -> bool
+							 {
+								 bool tmp = a.off > a.on;
+								 if (!tmp)
+									 return false;
+								 else
+								 {
+									 // everything ok, if we go to the next week
+									 assert(a.off > a.on);
+									 return (a.off - a.on) > hours(24 * 7);
+								 }
+							 });
 	if (pos2 != end)
 	{
 		throw std::runtime_error("check_schedule: off time < on time");
@@ -277,18 +278,23 @@ void check_schedule(iterator_t begin, iterator_t end)
 
 	// 3. check for overlaps
 	auto pos3 =
-		std::find_if(begin, end, [begin, end](const action_t &a) -> bool {
-			auto p = std::find_if(begin, end, [a](const action_t &b) -> bool {
-				if (a == b) // same action, dont mind
-					return false;
-				else
-				{
-					return (a.on >= b.on && a.on <= b.off);
-				}
-			});
+		std::find_if(begin, end,
+					 [begin, end](const action_t& a) -> bool
+					 {
+						 auto p = std::find_if(
+							 begin, end,
+							 [a](const action_t& b) -> bool
+							 {
+								 if (a == b) // same action, dont mind
+									 return false;
+								 else
+								 {
+									 return (a.on >= b.on && a.on <= b.off);
+								 }
+							 });
 
-			return p != end;
-		});
+						 return p != end;
+					 });
 	if (pos3 != end)
 	{
 		throw std::runtime_error("check_schedule: overlaping schedules");
@@ -298,22 +304,24 @@ void check_schedule(iterator_t begin, iterator_t end)
 template <typename iterator_t>
 bool get_state(iterator_t begin, iterator_t end, const time_point_t tp)
 {
-	auto pos_is_on = std::find_if(begin, end, [tp](const action_t &a) -> bool {
-		if (a.on < a.off)
-		{
-			return a.on <= tp && tp < a.off;
-		}
-		else
-		{
-			// sunday->monday
-			if (a.on <= tp)
-				return true;
-			else if (tp < a.off)
-				return true;
-			else
-				return false;
-		}
-	});
+	auto pos_is_on = std::find_if(begin, end,
+								  [tp](const action_t& a) -> bool
+								  {
+									  if (a.on < a.off)
+									  {
+										  return a.on <= tp && tp < a.off;
+									  }
+									  else
+									  {
+										  // sunday->monday
+										  if (a.on <= tp)
+											  return true;
+										  else if (tp < a.off)
+											  return true;
+										  else
+											  return false;
+									  }
+								  });
 
 	return pos_is_on != end;
 }
@@ -324,9 +332,8 @@ time_point_t get_next_on_time(iterator_t begin, iterator_t end,
 {
 	// 1. check on < off and next on > last off
 	auto pos = std::adjacent_find(
-		begin, end, [tp](const action_t &a1, const action_t &a2) -> bool {
-			return a1.off <= tp && tp < a2.on;
-		});
+		begin, end, [tp](const action_t& a1, const action_t& a2) -> bool
+		{ return a1.off <= tp && tp < a2.on; });
 
 	if (pos == end)
 	{

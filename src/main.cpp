@@ -65,7 +65,7 @@ struct options
 	bool forced = false;
 };
 
-options parse_options(int argc, char *argv[])
+options parse_options(int argc, char* argv[])
 {
 	options opts;
 	if (argc == 1) // no arguments
@@ -104,7 +104,7 @@ options parse_options(int argc, char *argv[])
 
 } // namespace ours
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	using namespace rtc;
 	using namespace ours;
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
 
 		return EXIT_SUCCESS;
 	}
-	catch (const std::exception &ex)
+	catch (const std::exception& ex)
 	{
 		std::cerr << "Error: " << ex.what() << std::endl;
 	}

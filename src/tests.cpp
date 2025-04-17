@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(syntax_error_test)
 		auto cmds = read_schedule(back_inserter, iss, rtc::now());
 		BOOST_REQUIRE(false);
 	}
-	catch (const std::exception &ex)
+	catch (const std::exception& ex)
 	{
 		std::string msg = ex.what();
 		BOOST_CHECK(msg == "read_schedule(): Unrecognized syntax at line: "
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(on_smaller_off)
 
 	read_schedule(back_inserter, iss, rtc::now());
 
-	for (auto &c : sched)
+	for (auto& c : sched)
 	{
 		BOOST_CHECK(c.on < c.off);
 	}
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(get_next_on_time_test_3)
 
 time_point_t RunTest(const rtc::cmd_t cmds, const std::vector<action_t> sched,
 					 const time_point_t start, const duration_t duration,
-					 const bool expected_state, int &cnt)
+					 const bool expected_state, int& cnt)
 {
 	auto test_now = start;
 	auto test_end = start + duration;

@@ -1,70 +1,54 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.20)
 project(rtcwake-schedule)
 
-SET(BOOST_REQUIRED_VERSION "1.62.0")
+cmake_policy(SET CMP0167 OLD)
+
+if (CMAKE_BUILD_TYPE STREQUAL "")
+	set (CMAKE_BUILD_TYPE "Release")
+	message(STATUS "Set Buildtype to Release")
+endif()
 
 ################################################################################
 # Git is required for build (Version info)
 ################################################################################
-FIND_PACKAGE(Git REQUIRED)
-IF (GIT_FOUND)
-	MESSAGE(STATUS "Git: ${GIT_EXECUTABLE}")
-ELSE (GIT_FOUND)
-	MESSAGE(FATAL_ERROR "Git not found")
-ENDIF (GIT_FOUND)
+find_package(Git REQUIRED)
+if (GIT_FOUND)
+	message(STATUS "Git: ${GIT_EXECUTABLE}")
+else ()
+	message(FATAL_ERROR "Git not found")
+endif()
 
 ################################################################################
 # Enable Unit tests
 ################################################################################
-OPTION(BUILD_TESTING "Build Testing" OFF)
-IF (BUILD_TESTING)
-	INCLUDE(CTest)
-	ENABLE_TESTING()
-
-	FIND_PACKAGE(Boost ${BOOST_REQUIRED_VERSION} COMPONENTS
-		system
-		unit_test_framework
-			REQUIRED)
-
-ENDIF (BUILD_TESTING)
-
-################################################################################
-# boost
-################################################################################
-SET(Boost_USE_STATIC_LIBS ON)
-SET(Boost_ADDITIONAL_VERSIONS ${BOOST_REQUIRED_VERSION})
-FIND_PACKAGE(Boost ${BOOST_REQUIRED_VERSION} COMPONENTS
-	date_time system
-		REQUIRED)
-#ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK=1)
-
-# no auto linking
-ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
-
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+option(BUILD_TESTING "Build Testing" ON)
+if (BUILD_TESTING)
+	include(CTest)
+	enable_testing()
+endif()
 
 ################################################################################
 # general options for configuration
 ################################################################################
-SET(RC_FILE_PATH "/etc/rtcwake-schedule/schedule" CACHE FILEPATH "Path for the schedule file")
-ADD_DEFINITIONS(-DRC_FILE_PATH="${RC_FILE_PATH}")
+set(RC_FILE_PATH "/etc/rtcwake-schedule/schedule" CACHE FILEPATH "Path for the schedule file")
+add_definitions(-DRC_FILE_PATH="${RC_FILE_PATH}")
 
 ################################################################################
 # CPP FLAGS
 ################################################################################
-IF(UNIX)
-	SET(CMAKE_CXX_FLAGS   "--std=c++14 -Wall -Wno-deprecated-declarations ${CMAKE_CXX_FLAGS} -Werror=switch")
+if(UNIX)
+	set(CMAKE_CXX_FLAGS   "--std=c++14 -Wall -Wno-deprecated-declarations ${CMAKE_CXX_FLAGS} -Werror=switch")
 
-	ADD_DEFINITIONS(-DUNIX)
-ENDIF(UNIX)
+	add_definitions(-DUNIX)
+endif()
 
-IF(MSVC)
-	ADD_DEFINITIONS(-D_WIN32_WINNT=0x0501)
-ENDIF(MSVC)
+if(MSVC)
+	add_definitions(-D_WIN32_WINNT=0x0501)
+endif()
 
 ################################################################################
 # Src
 ################################################################################
-ADD_SUBDIRECTORY(man)
-ADD_SUBDIRECTORY(src)
+add_subdirectory(3rdParty)
+add_subdirectory(man)
+add_subdirectory(src)
