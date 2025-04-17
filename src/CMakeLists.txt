@@ -1,7 +1,7 @@
 ################################################################################
 # common libs
 ################################################################################
-SET(LIBS
+set(LIBS
 	Boost::date_time
 	Boost::system
 )
@@ -9,7 +9,7 @@ SET(LIBS
 ################################################################################
 # The main sources
 ################################################################################
-SET(SRC_SCHEDULE
+set(SRC_SCHEDULE
 		main.cpp
 		rtcwake-schedule.h
 )
@@ -18,43 +18,40 @@ SET(SRC_SCHEDULE
 # version info
 # a repackaged version could set the version string differently like a fixed one
 ################################################################################
-EXECUTE_PROCESS(
+execute_process(
 	COMMAND ${GIT_EXECUTABLE} describe --tags --dirty
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	OUTPUT_VARIABLE GIT_VERSION
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-ADD_DEFINITIONS(-DGIT_VERSION="${GIT_VERSION}")
+add_definitions(-DGIT_VERSION="${GIT_VERSION}")
 
 ################################################################################
 # The main executable
 ################################################################################
-ADD_EXECUTABLE(rtcwake-schedule	${SRC_SCHEDULE} )
+add_executable(rtcwake-schedule	${SRC_SCHEDULE} )
 
-TARGET_LINK_LIBRARIES(rtcwake-schedule ${LIBS})
-INSTALL (TARGETS rtcwake-schedule DESTINATION bin)
+target_link_libraries(rtcwake-schedule PRIVATE ${LIBS})
+
+install (TARGETS rtcwake-schedule DESTINATION bin)
 
 ################################################################################
 # the test
 ################################################################################
-IF (BUILD_TESTING)
-	SET(SRC_TEST
+if (BUILD_TESTING)
+	add_executable(rtcwake-schedule-test)
+
+	target_sources(rtcwake-schedule-test
+		PRIVATE
 			tests.cpp
 			rtcwake-schedule.h
 	)
 
-	SET(TEST_LIBS ${LIBS}
-		Boost::unit_test_framework
+	target_link_libraries(rtcwake-schedule-test
+		PRIVATE
+			Boost::unit_test_framework
 	)
 
-	ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK )
-
-	INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-	LINK_DIRECTORIES(${Boost_LIBRARY_DIR})
-
-	ADD_EXECUTABLE(rtcwake-schedule-test	${SRC_TEST} )
-	TARGET_LINK_LIBRARIES(rtcwake-schedule-test ${TEST_LIBS})
-
-	ADD_TEST(rtcwake-schedule-test rtcwake-schedule-test)
-ENDIF (BUILD_TESTING)
+	add_test(rtcwake-schedule-test rtcwake-schedule-test --log_format=JUNIT --log_level=all)
+endif()
